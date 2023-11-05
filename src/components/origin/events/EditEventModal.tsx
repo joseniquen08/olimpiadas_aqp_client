@@ -2,8 +2,7 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { Button as ButtonOrigin } from "@/components/origin/shared/Button";
-import { PlusIcon } from "@/components/origin/icons/PlusIcon";
+import { EditIcon } from "@/components/origin/icons/EditIcon";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -21,6 +20,11 @@ import { LoadingIcon } from "../shared/LoadingIcon";
 import { es } from "date-fns/locale";
 
 interface Props {
+  event_id: number;
+  name: string;
+  status: boolean;
+  start_date: Date;
+  client_id: number;
   clients: any;
 }
 
@@ -36,7 +40,7 @@ const FormSchema = z.object({
   }),
 });
 
-export function AddEventModal({ clients }: Props) {
+export function EditEventModal({ event_id, name, status, start_date, client_id, clients }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -44,25 +48,32 @@ export function AddEventModal({ clients }: Props) {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      name,
+      start_date,
+      client_id,
+    }
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setLoading(true);
 
-    const response = await fetch(`/api/event/create`, {
-      method: 'POST',
+    const response = await fetch(`/api/event/edit`, {
+      method: 'PUT',
       body: JSON.stringify({
+        eventId: event_id,
         name: data.name,
         startDate: data.start_date,
-        status: true,
+        status,
         clientId: data.client_id,
       }),
     });
 
     const dataRes = await response.json();
 
-    if (dataRes.status == 201) {
+    if (dataRes.status == 204) {
       setIsOpen(false);
+      setLoading(false);
       router.refresh();
     } else {
       console.log("Error");
@@ -77,10 +88,9 @@ export function AddEventModal({ clients }: Props) {
 
   return (
     <>
-      <ButtonOrigin action={() => setIsOpen(true)} className="gap-1.5 items-center">
-        <PlusIcon />
-        <span>Agregar</span>
-      </ButtonOrigin>
+      <button type="button" onClick={() => setIsOpen(true)} className="h-9 w-9 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center">
+        <EditIcon />
+      </button>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={onClose}>
           <Transition.Child
@@ -106,7 +116,7 @@ export function AddEventModal({ clients }: Props) {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Agregar un nuevo evento</Dialog.Title>
+                  <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Editar evento</Dialog.Title>
                   <Dialog.Description className="text-sm mt-1">Completa los datos requeridos</Dialog.Description>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="pt-6 grid grid-cols-2 gap-4 md:gap-6">
@@ -164,7 +174,7 @@ export function AddEventModal({ clients }: Props) {
                         name="client_id"
                         render={({ field }) => (
                           <FormItem className="flex flex-col space-y-2.5">
-                            <FormLabel>Cliente <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>Cliente</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>

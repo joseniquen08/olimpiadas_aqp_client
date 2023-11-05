@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/origin/shared/Button";
 import { LogoutIcon } from "@/components/origin/icons/LogoutIcon";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { ButtonAside } from "@/components/origin/aside/ButtonAside";
 
 export function Aside() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const logout = async () => {
     const response = await fetch('/api/auth/logout', {
@@ -25,19 +27,49 @@ export function Aside() {
         <h1 className="text-2xl font-bold">Olimpiadas AQP</h1>
         <ul className="flex-1 flex flex-col gap-2">
           <li>
-            <Button className="w-full" action={() => router.push('/dashboard')}>Inicio</Button>
+            <ButtonAside
+              className="w-full"
+              isPathname={pathname === "/dashboard"}
+              action={() => router.push("/dashboard")}
+            >
+              Inicio
+            </ButtonAside>
           </li>
           <li>
-            <Button className="w-full" action={() => {}}>Deportes</Button>
+            <ButtonAside
+              className="w-full"
+              isPathname={pathname === "/dashboard/sports"}
+              action={() => router.push("/dashboard/sports")}
+            >
+              Deportes
+            </ButtonAside>
           </li>
           <li>
-            <Button className="w-full" action={() => router.push('/dashboard/events')}>Eventos</Button>
+            <ButtonAside
+              className="w-full"
+              isPathname={pathname === "/dashboard/events"}
+              action={() => router.push("/dashboard/events")}
+            >
+              Eventos
+            </ButtonAside>
           </li>
           <li>
-            <Button className="w-full" action={() => router.push('/dashboard/users')}>Usuarios</Button>
+            <ButtonAside
+              className="w-full"
+              isPathname={pathname === "/dashboard/users"}
+              action={() => router.push("/dashboard/users")}
+            >
+              Usuarios
+            </ButtonAside>
           </li>
           <li>
-            <Button className="w-full" action={() => {}}>Perfil</Button>
+            <ButtonAside
+              className="w-full"
+              isPathname={pathname === "/dashboard/profile"}
+              action={() => {}}
+            >
+              Perfil
+            </ButtonAside>
           </li>
         </ul>
         <Button className="w-full" action={() => logout()}>

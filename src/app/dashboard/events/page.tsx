@@ -1,8 +1,14 @@
 import { Button } from "@/components/origin/shared/Button";
 import { FilterIcon } from "@/components/origin/icons/FilterIcon";
-import { EditIcon } from "@/components/origin/icons/EditIcon";
 import { DeleteIcon } from "@/components/origin/icons/DeleteIcon";
 import { AddEventModal } from "@/components/origin/events/AddEventModal";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { OlympicsIcon } from "@/components/origin/icons/OlympicsIcon";
+import { UserPlusIcon } from "@/components/origin/icons/UserPlusIcon";
+import { EditEventModal } from "@/components/origin/events/EditEventModal";
+import { ChangeEventStatusModal } from "@/components/origin/events/ChangeEventStatusModal";
 
 async function getEvents() {
   const response = await fetch(`${process.env.SERVER_URI}/api/event/all`, {
@@ -68,14 +74,18 @@ export default async function Events() {
               events?.map((event: any) => (
                 <tr key={event.eventId} className="bg-white border-b font-medium">
                   <td className="px-6 py-4">{event.name}</td>
-                  <td className="px-6 py-4">{dtf.format((new Date(event.startDate)).setDate((new Date(event.startDate).getDate() + 2)))}</td>
-                  <td className="px-6 py-4">{event.status ? 'Activo' : 'Inactivo'}</td>
+                  <td className="px-6 py-4">{format((new Date(event.startDate)).setDate((new Date(event.startDate).getDate() + 1)), "PPP", { locale: es })}</td>
+                  <td className="px-6 py-4"><ChangeEventStatusModal event_id={event.eventId} status={event.status} /></td>
                   <td className="px-6 py-4">{event.client}</td>
-                  <td className="px-6 py-4 flex space-x-4">
-                    <button type="button" className="h-10 w-10 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center">
-                      <EditIcon />
+                  <td className="px-6 py-4 flex space-x-2">
+                    <button type="button" className="h-9 w-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                      <OlympicsIcon />
                     </button>
-                    <button type="button" className="h-10 w-10 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
+                    <button type="button" className="h-9 w-9 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                      <UserPlusIcon />
+                    </button>
+                    <EditEventModal event_id={event.eventId} name={event.name} status={event.status} start_date={new Date((new Date(event.startDate)).setDate((new Date(event.startDate).getDate() + 1)))} client_id={event.clientId} clients={clients} />
+                    <button type="button" className="h-9 w-9 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
                       <DeleteIcon />
                     </button>
                   </td>
