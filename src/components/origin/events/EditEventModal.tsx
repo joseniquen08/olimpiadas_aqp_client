@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { LoadingIcon } from "../shared/LoadingIcon";
 import { es } from "date-fns/locale";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   event_id: number;
@@ -31,7 +32,7 @@ interface Props {
 const FormSchema = z.object({
   name: z.string({
     required_error: "El nombre del evento es obligatorio"
-  }),
+  }).min(1, { message: "El nombre del evento es obligatorio" }),
   start_date: z.date({
     required_error: "La fecha de inicio es obligatoria",
   }),
@@ -43,6 +44,8 @@ const FormSchema = z.object({
 export function EditEventModal({ event_id, name, status, start_date, client_id, clients }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [nameForm, setNameForm] = useState<string>(name);
+  const [startDateForm, setStartDateForm] = useState<Date>(start_date);
 
   const router = useRouter();
 
@@ -74,6 +77,8 @@ export function EditEventModal({ event_id, name, status, start_date, client_id, 
     if (dataRes.status == 204) {
       setIsOpen(false);
       setLoading(false);
+      setNameForm(data.name);
+      setStartDateForm(data.start_date);
       router.refresh();
     } else {
       console.log("Error");
@@ -83,14 +88,26 @@ export function EditEventModal({ event_id, name, status, start_date, client_id, 
 
   const onClose = () => {
     setIsOpen(false);
-    form.reset();
+    form.reset({
+      name: nameForm,
+      start_date: startDateForm,
+    });
   }
 
   return (
     <>
-      <button type="button" onClick={() => setIsOpen(true)} className="h-9 w-9 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center">
-        <EditIcon />
-      </button>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button type="button" onClick={() => setIsOpen(true)} className="h-9 w-9 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center">
+              <EditIcon />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Editar evento</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={onClose}>
           <Transition.Child
@@ -181,6 +198,7 @@ export function EditEventModal({ event_id, name, status, start_date, client_id, 
                                   <Button
                                     variant="outline"
                                     role="combobox"
+                                    disabled={true}
                                     className={cn(
                                       "w-full justify-between",
                                       !field.value && "text-muted-foreground"

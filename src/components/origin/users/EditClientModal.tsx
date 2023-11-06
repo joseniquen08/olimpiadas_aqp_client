@@ -2,57 +2,84 @@
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import { EditIcon } from "@/components/origin/icons/EditIcon";
 import { useRouter } from "next/navigation";
+import * as z from "zod";
+import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Input } from "@/components/ui/input";
-import { LoadingIcon } from "../shared/LoadingIcon";
-import { Textarea } from "@/components/ui/textarea";
+import { LoadingIcon } from '@/components/origin/shared/LoadingIcon';
+import { EditIcon } from '@/components/origin/icons/EditIcon';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
-  sport_id: number;
-  name: string;
-  description: string;
+  client_id: number;
+  full_name: string;
+  email: string;
+  phone: string;
+  representative: string;
+  ruc: string;
 }
 
+const phoneRegex = new RegExp(
+  /^([9])+(\d{8})$/g
+);
+
+const rucRegex = new RegExp(
+  /^(\d{11})$/g
+);
+
 const FormSchema = z.object({
-  name: z.string({
-    required_error: "El nombre del evento es obligatorio"
-  }).min(1, { message: "El nombre del evento es obligatorio" }),
-  description: z.string({
-    required_error: "La descripción es obligatoria",
-  }).min(1, { message: "La descripción es obligatoria" }),
+  full_name: z.string({
+    required_error: "El nombre es obligatorio"
+  }).min(1, { message: "El nombre es obligatorio" }),
+  email: z.string({
+    required_error: "El correo es obligatorio"
+  }).email().min(1, { message: "El correo es obligatorio" }),
+  ruc: z.string({
+    required_error: "El ruc es obligatorio"
+  }).regex(rucRegex, "RUC inválido").min(1, { message: "El ruc es obligatorio" }),
+  representative: z.string({
+    required_error: "El representante es obligatorio"
+  }).min(1, { message: "El representante es obligatorio" }),
+  phone: z.string({
+    required_error: "El teléfono es obligatorio"
+  }).regex(phoneRegex, "Número inválido").min(1, { message: "El teléfono es obligatorio" }),
 });
 
-export function EditSportModal({ sport_id, name, description }: Props) {
+export function EditClientModal({ client_id, full_name, email, phone, representative, ruc }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [nameForm, setNameForm] = useState<string>(name);
-  const [descriptionForm, setDescriptionForm] = useState<string>(description);
+  const [fullNameForm, setFullNameForm] = useState<string>(full_name);
+  const [representativeForm, setRepresentativeForm] = useState<string>(representative);
+  const [phoneForm, setPhoneForm] = useState<string>(phone);
 
   const router = useRouter();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name,
-      description,
+      full_name,
+      email,
+      phone: phone.toString(),
+      representative,
+      ruc: ruc.toString(),
     }
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setLoading(true);
 
-    const response = await fetch(`/api/sport/edit`, {
+    const response = await fetch(`/api/user/client/edit`, {
       method: 'PUT',
       body: JSON.stringify({
-        sportId: sport_id,
-        name: data.name,
-        description: data.description,
+        clientId: client_id,
+        email: data.email,
+        fullName: data.full_name,
+        roleId: 2,
+        ruc: data.ruc,
+        representative: data.representative,
+        phone: data.phone,
       }),
     });
 
@@ -61,20 +88,22 @@ export function EditSportModal({ sport_id, name, description }: Props) {
     if (dataRes.status == 204) {
       setIsOpen(false);
       setLoading(false);
-      setNameForm(data.name);
-      setDescriptionForm(data.description);
+      setFullNameForm(data.full_name);
+      setRepresentativeForm(data.representative);
+      setPhoneForm(data.phone);
       router.refresh();
     } else {
-      console.log("Error");
       setLoading(false);
+      console.log("Error");
     }
   }
 
   const onClose = () => {
     setIsOpen(false);
     form.reset({
-      name: nameForm,
-      description: descriptionForm,
+      full_name: fullNameForm,
+      representative: representativeForm,
+      phone: phoneForm,
     });
   }
 
@@ -88,7 +117,7 @@ export function EditSportModal({ sport_id, name, description }: Props) {
             </button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Editar deporte</p>
+            <p>Editar cliente</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -117,18 +146,18 @@ export function EditSportModal({ sport_id, name, description }: Props) {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Editar deporte</Dialog.Title>
-                  <Dialog.Description className="text-sm mt-1">Completa los datos requeridos</Dialog.Description>
+                  <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Editar cliente</Dialog.Title>
+                  <Dialog.Description>Completa los datos requeridos</Dialog.Description>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="pt-6 grid grid-cols-2 gap-4 md:gap-6">
-                    <FormField
+                      <FormField
                         control={form.control}
-                        name="name"
+                        name="full_name"
                         render={({ field }) => (
                           <FormItem className="col-span-2 flex flex-col space-y-2.5">
-                            <FormLabel>Nombre <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>Nombre de la empresa <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
-                              <Input placeholder="Deporte" {...field} autoComplete="off" />
+                              <Input placeholder="Cliente" {...field} autoComplete="off" />
                             </FormControl>
                             <FormMessage className="text-xs text-red-400" />
                           </FormItem>
@@ -136,17 +165,51 @@ export function EditSportModal({ sport_id, name, description }: Props) {
                       />
                       <FormField
                         control={form.control}
-                        name="description"
+                        name="email"
                         render={({ field }) => (
-                          <FormItem className="col-span-2 flex flex-col space-y-2.5">
-                            <FormLabel>Descripción <span className="text-red-500">*</span></FormLabel>
+                          <FormItem className="flex flex-col space-y-2.5">
+                            <FormLabel>Correo electrónico <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="Ingresar detalles..."
-                                className="resize-none"
-                                autoComplete="off"
-                                {...field}
-                              />
+                              <Input readOnly={true} className="bg-stone-200/50 text-stone-500" placeholder="example@domain.com" {...field} autoComplete="off" />
+                            </FormControl>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="ruc"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col space-y-2.5">
+                            <FormLabel>RUC <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input readOnly={true} className="bg-stone-200/50 text-stone-500" placeholder="Digite 11 números" {...field} autoComplete="off" />
+                            </FormControl>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="representative"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col space-y-2.5">
+                            <FormLabel>Representante <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input placeholder="Nombre completo" {...field} autoComplete="off" />
+                            </FormControl>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col space-y-2.5">
+                            <FormLabel>Teléfono <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input placeholder="Digite 9 números" {...field} autoComplete="off" />
                             </FormControl>
                             <FormMessage className="text-xs text-red-400" />
                           </FormItem>

@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 
 const fontSans = FontSans({
   subsets: ["latin"],
-  display: "swap",
 });
 
 export const metadata: Metadata = {

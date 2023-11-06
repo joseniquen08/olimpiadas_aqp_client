@@ -1,11 +1,8 @@
 import { Button } from "@/components/origin/shared/Button";
 import { FilterIcon } from "@/components/origin/icons/FilterIcon";
-import { EditIcon } from "@/components/origin/icons/EditIcon";
-import { DeleteIcon } from "@/components/origin/icons/DeleteIcon";
-import { Badge } from "@/components/ui/badge";
 import { AddSportModal } from "@/components/origin/sports/AddSportModal";
-import { PlusIcon } from "@/components/origin/icons/PlusIcon";
 import { EditSportModal } from "@/components/origin/sports/EditSportModal";
+import { DeleteSportModal } from "@/components/origin/sports/DeleteSportModal";
 
 async function getSports() {
   const response = await fetch(`${process.env.SERVER_URI}/api/sport/all`, {
@@ -61,10 +58,15 @@ export default async function Sports() {
                   <td className="px-6 py-4">{sport.description}</td>
                   <td className="px-6 py-4"></td>
                   <td className="px-6 py-4 flex space-x-4">
-                    <EditSportModal sport_id={sport.sportId} name={sport.name} description={sport.description} />
-                    <button type="button" className="h-9 w-9 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
-                      <DeleteIcon />
-                    </button>
+                    <EditSportModal
+                      sport_id={sport.sportId}
+                      name={sport.name}
+                      description={sport.description}
+                    />
+                    <DeleteSportModal
+                      sport_id={sport.sportId}
+                      name={sport.name}
+                    />
                   </td>
                 </tr>
               ))

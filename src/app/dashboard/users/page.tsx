@@ -1,8 +1,10 @@
 import { Button } from "@/components/origin/shared/Button";
 import { FilterIcon } from "@/components/origin/icons/FilterIcon";
 import { AddUserModal } from "@/components/origin/users/AddUserModal";
-import { EditIcon } from "@/components/origin/icons/EditIcon";
 import { DeleteIcon } from "@/components/origin/icons/DeleteIcon";
+import { EditClientModal } from "@/components/origin/users/EditClientModal";
+import { EditDelegateModal } from "@/components/origin/users/EditDelegateModal";
+import { DeleteUserModal } from "@/components/origin/users/DeleteUserModal";
 
 async function getUsers() {
   const response = await fetch(`${process.env.SERVER_URI}/api/user/all`, {
@@ -54,14 +56,35 @@ export default async function Users() {
                   <td className="px-6 py-4">{user.email}</td>
                   <td className="px-6 py-4">{user.roleName}</td>
                   <td className="px-6 py-4 flex space-x-4">
-                    <button type="button" className="h-9 w-9 bg-yellow-50 hover:bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center">
-                      <EditIcon />
-                    </button>
+                    {
+                      user.roleName == "CLIENTE" && (
+                        <EditClientModal
+                          client_id={user.client.clientId}
+                          full_name={user.fullName}
+                          email={user.email}
+                          phone={user.client.phone}
+                          representative={user.client.representative}
+                          ruc={user.client.ruc}
+                        />
+                      )
+                    }
+                    {
+                      user.roleName == "DELEGADO" && (
+                        <EditDelegateModal
+                          delegate_id={user.delegate.delegateId}
+                          full_name={user.fullName}
+                          email={user.email}
+                          phone={user.delegate.phone}
+                          dni={user.delegate.dni}
+                        />
+                      )
+                    }
                     {
                       user.roleName !== "ADMIN" && (
-                        <button type="button" className="h-9 w-9 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl flex items-center justify-center">
-                          <DeleteIcon />
-                        </button>
+                        <DeleteUserModal
+                          user_id={user.userId}
+                          name={user.fullName}
+                        />
                       )
                     }
                   </td>
