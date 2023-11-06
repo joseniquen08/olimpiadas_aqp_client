@@ -1,8 +1,6 @@
 import { Button } from "@/components/origin/shared/Button";
 import { FilterIcon } from "@/components/origin/icons/FilterIcon";
-import { DeleteIcon } from "@/components/origin/icons/DeleteIcon";
 import { AddEventModal } from "@/components/origin/events/AddEventModal";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { OlympicsIcon } from "@/components/origin/icons/OlympicsIcon";
@@ -10,32 +8,38 @@ import { UserPlusIcon } from "@/components/origin/icons/UserPlusIcon";
 import { EditEventModal } from "@/components/origin/events/EditEventModal";
 import { ChangeEventStatusModal } from "@/components/origin/events/ChangeEventStatusModal";
 import { DeleteEventModal } from "@/components/origin/events/DeleteEventModal";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 async function getEvents() {
-  const response = await fetch(`${process.env.SERVER_URI}/api/event/all`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  try {
+    const response = await fetch(`${process.env.SERVER_URI}/api/event/all`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    console.log("Error");
+  }
 }
 
 async function getClients() {
-  const response = await fetch(`${process.env.SERVER_URI}/api/user/client/all`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  try {
+    const response = await fetch(`${process.env.SERVER_URI}/api/user/client/all`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    console.log("Error");
+  }
 }
 
 export default async function Events() {
   const events = await getEvents();
   const clients = await getClients();
-
-  const dtf = new Intl.DateTimeFormat('es', {
-    timeZone: 'America/Lima'
-  });
 
   return (
     <div className="py-3 flex flex-col space-y-5">
@@ -71,8 +75,8 @@ export default async function Events() {
             </tr>
           </thead>
           <tbody>
-            {
-              events?.map((event: any) => (
+            {events ? (
+              events.map((event: any) => (
                 <tr key={event.eventId} className="bg-white border-b font-medium">
                   <td className="px-6 py-4">{event.name}</td>
                   <td className="px-6 py-4">{format((new Date(event.startDate)).setDate((new Date(event.startDate).getDate() + 1)), "PPP", { locale: es })}</td>
@@ -105,7 +109,19 @@ export default async function Events() {
                   </td>
                 </tr>
               ))
-            }
+            ) : (
+              <tr>
+                <td colSpan={5} className="py-3">
+                  <Alert variant="destructive" className="w-96 mx-auto">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error con el servidor (500)</AlertTitle>
+                    <AlertDescription>
+                      Vuelve a intentarlo más tarde
+                    </AlertDescription>
+                  </Alert>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

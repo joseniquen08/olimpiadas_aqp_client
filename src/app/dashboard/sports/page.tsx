@@ -3,22 +3,24 @@ import { FilterIcon } from "@/components/origin/icons/FilterIcon";
 import { AddSportModal } from "@/components/origin/sports/AddSportModal";
 import { EditSportModal } from "@/components/origin/sports/EditSportModal";
 import { DeleteSportModal } from "@/components/origin/sports/DeleteSportModal";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 async function getSports() {
-  const response = await fetch(`${process.env.SERVER_URI}/api/sport/all`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  try {
+    const response = await fetch(`${process.env.SERVER_URI}/api/sport/all`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    console.log("Error");
+  }
 }
 
 export default async function Sports() {
   const sports = await getSports();
-
-  const dtf = new Intl.DateTimeFormat('es', {
-    timeZone: 'America/Lima'
-  });
 
   return (
     <div className="py-3 flex flex-col space-y-5">
@@ -51,8 +53,8 @@ export default async function Sports() {
             </tr>
           </thead>
           <tbody>
-            {
-              sports?.map((sport: any) => (
+            {sports ? (
+              sports.map((sport: any) => (
                 <tr key={sport.sportId} className="bg-white border-b font-medium">
                   <td className="px-6 py-4">{sport.name}</td>
                   <td className="px-6 py-4">{sport.description}</td>
@@ -70,7 +72,19 @@ export default async function Sports() {
                   </td>
                 </tr>
               ))
-            }
+            ) : (
+              <tr>
+                <td colSpan={4} className="py-3">
+                  <Alert variant="destructive" className="w-96 mx-auto">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error con el servidor (500)</AlertTitle>
+                    <AlertDescription>
+                      Vuelve a intentarlo más tarde
+                    </AlertDescription>
+                  </Alert>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

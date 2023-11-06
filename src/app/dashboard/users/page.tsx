@@ -1,18 +1,23 @@
 import { Button } from "@/components/origin/shared/Button";
 import { FilterIcon } from "@/components/origin/icons/FilterIcon";
 import { AddUserModal } from "@/components/origin/users/AddUserModal";
-import { DeleteIcon } from "@/components/origin/icons/DeleteIcon";
 import { EditClientModal } from "@/components/origin/users/EditClientModal";
 import { EditDelegateModal } from "@/components/origin/users/EditDelegateModal";
 import { DeleteUserModal } from "@/components/origin/users/DeleteUserModal";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 async function getUsers() {
-  const response = await fetch(`${process.env.SERVER_URI}/api/user/all`, {
-    method: 'GET',
-    cache: 'no-store',
-  });
+  try {
+    const response = await fetch(`${process.env.SERVER_URI}/api/user/all`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    console.log("Error");
+  }
 }
 
 export default async function Users() {
@@ -49,7 +54,7 @@ export default async function Users() {
             </tr>
           </thead>
           <tbody>
-            {
+            {users ? (
               users?.map((user: any) => (
                 <tr key={user.userId} className="bg-white border-b font-medium">
                   <td className="px-6 py-4">{user.fullName}</td>
@@ -90,7 +95,19 @@ export default async function Users() {
                   </td>
                 </tr>
               ))
-            }
+            ) : (
+              <tr>
+                <td colSpan={4} className="py-3">
+                  <Alert variant="destructive" className="w-96 mx-auto">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error con el servidor (500)</AlertTitle>
+                    <AlertDescription>
+                      Vuelve a intentarlo más tarde
+                    </AlertDescription>
+                  </Alert>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

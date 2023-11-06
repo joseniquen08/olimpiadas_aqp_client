@@ -8,14 +8,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useToast } from '@/components/ui/use-toast';
 
 const FormSchema = z.object({
   email: z.string({
     required_error: "El correo electrónico es obligatorio"
-  }),
+  }).email().min(1, { message: "El correo electrónico es obligatorio" }),
   password: z.string({
     required_error: "La contraseña es obligatoria",
-  }),
+  }).min(1, { message: "La contraseña es obligatoria" }),
 });
 
 export default function Login() {
@@ -25,8 +26,14 @@ export default function Login() {
 
   const router = useRouter();
 
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    }
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
@@ -40,10 +47,21 @@ export default function Login() {
       }),
     });
 
+    if (response.status == 500) {
+      toast({
+        variant: "destructive",
+        title: "Error con el servidor (500)",
+        description: "Vuelve a intentarlo más tarde",
+      });
+      setLoading(false);
+      return;
+    }
+
     const dataRes = await response.json();
 
     if (dataRes.status == 200) {
       router.replace('/');
+      router.refresh();
     } else {
       setError(true);
       setErrorMessage(dataRes.message);
