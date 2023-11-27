@@ -33,9 +33,9 @@ export function ChangeEventStatusModal({ event_id, status }: Props) {
     const dataRes = await response.json();
 
     if (dataRes.status == 204) {
-      setLoading(false);
       setIsOpen(false);
       router.refresh();
+      setLoading(false);
     } else {
       console.log("Error");
       setLoading(false);

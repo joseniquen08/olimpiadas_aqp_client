@@ -57,10 +57,10 @@ export default async function Users() {
             {users ? (
               users?.map((user: any) => (
                 <tr key={user.userId} className="bg-white border-b font-medium">
-                  <td className="px-6 py-4">{user.fullName}</td>
-                  <td className="px-6 py-4">{user.email}</td>
-                  <td className="px-6 py-4">{user.roleName}</td>
-                  <td className="px-6 py-4 flex space-x-4">
+                  <td className="px-6 py-3.5">{user.fullName}</td>
+                  <td className="px-6 py-3.5">{user.email}</td>
+                  <td className="px-6 py-3.5">{user.roleName}</td>
+                  <td className="px-6 py-3.5 flex space-x-4">
                     {
                       user.roleName == "CLIENTE" && (
                         <EditClientModal

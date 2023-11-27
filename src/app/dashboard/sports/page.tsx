@@ -44,9 +44,6 @@ export default async function Sports() {
               <th scope="col" className="px-6 py-3">
                 Descripción
               </th>
-              <th scope="col" className="px-6 py-3">
-                Total de categorías
-              </th>
               <th scope="col" className="px-6 py-3 rounded-r-xl">
                 Acciones
               </th>
@@ -58,7 +55,6 @@ export default async function Sports() {
                 <tr key={sport.sportId} className="bg-white border-b font-medium">
                   <td className="px-6 py-4">{sport.name}</td>
                   <td className="px-6 py-4">{sport.description}</td>
-                  <td className="px-6 py-4"></td>
                   <td className="px-6 py-4 flex space-x-4">
                     <EditSportModal
                       sport_id={sport.sportId}

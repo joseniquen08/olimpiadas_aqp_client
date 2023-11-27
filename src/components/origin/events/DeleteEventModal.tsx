@@ -3,7 +3,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoadingIcon } from "../shared/LoadingIcon";
+import { LoadingIcon } from "@/components/origin/shared/LoadingIcon";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DeleteIcon } from '@/components/origin/icons/DeleteIcon';
 
@@ -32,8 +32,8 @@ export function DeleteEventModal({ event_id, name }: Props) {
 
     if (dataRes.status == 204) {
       setIsOpen(false);
-      setLoading(false);
       router.refresh();
+      setLoading(false);
     } else {
       console.log("Error");
       setLoading(false);
@@ -86,7 +86,7 @@ export function DeleteEventModal({ event_id, name }: Props) {
                   <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Eliminar evento</Dialog.Title>
                   <Dialog.Description className="mt-1 font-medium">{name}</Dialog.Description>
                   <div className="flex space-x-2 justify-end pt-4">
-                    <button type="button" onClick={onClose} className="text-red-600 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 font-semibold rounded-lg text-base px-5 py-2 text-center flex justify-center active:scale-95 transition-all duration-75 ease-out">Cancel</button>
+                    <button type="button" onClick={onClose} className="text-red-600 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 font-semibold rounded-lg text-base px-5 py-2 text-center flex justify-center active:scale-95 transition-all duration-75 ease-out">Cancelar</button>
                     <button type="button" onClick={onSubmit} className="text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold rounded-lg text-base px-5 py-2 text-center flex justify-center active:scale-95 transition-all duration-75 ease-out disabled:opacity-75 disabled:cursor-not-allowed disabled:active:scale-100" disabled={loading}>
                       {
                         loading ? (

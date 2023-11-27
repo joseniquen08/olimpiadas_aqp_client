@@ -3,13 +3,16 @@ import { FilterIcon } from "@/components/origin/icons/FilterIcon";
 import { AddEventModal } from "@/components/origin/events/AddEventModal";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { OlympicsIcon } from "@/components/origin/icons/OlympicsIcon";
 import { UserPlusIcon } from "@/components/origin/icons/UserPlusIcon";
 import { EditEventModal } from "@/components/origin/events/EditEventModal";
 import { ChangeEventStatusModal } from "@/components/origin/events/ChangeEventStatusModal";
 import { DeleteEventModal } from "@/components/origin/events/DeleteEventModal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { SportsButton } from "@/components/origin/events/SportsButton";
+import { InfoIcon } from "@/components/origin/icons/InfoIcon";
+import { SeeMoreInfoModal } from "@/components/origin/events/SeeMoreInfoModal";
+import { DelegatesButton } from "@/components/origin/events/DelegatesButton";
 
 async function getEvents() {
   try {
@@ -66,9 +69,6 @@ export default async function Events() {
               <th scope="col" className="px-6 py-3">
                 Estado
               </th>
-              <th scope="col" className="px-6 py-3">
-                Cliente
-              </th>
               <th scope="col" className="px-6 py-3 rounded-r-xl">
                 Acciones
               </th>
@@ -86,14 +86,15 @@ export default async function Events() {
                       status={event.status}
                     />
                   </td>
-                  <td className="px-6 py-4">{event.client}</td>
                   <td className="px-6 py-4 flex space-x-2">
-                    <button type="button" className="h-9 w-9 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
-                      <OlympicsIcon />
-                    </button>
-                    <button type="button" className="h-9 w-9 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
-                      <UserPlusIcon />
-                    </button>
+                    <SeeMoreInfoModal
+                      event_name={event.name}
+                      client_name={event.client}
+                      representative={event.representative}
+                      phone={event.phone}
+                    />
+                    <SportsButton event_id={event.eventId} />
+                    <DelegatesButton event_id={event.eventId} />
                     <EditEventModal
                       event_id={event.eventId}
                       name={event.name}

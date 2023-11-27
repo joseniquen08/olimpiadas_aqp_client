@@ -73,10 +73,12 @@ export function AddDelegateForm({ setIsOpen }: Props) {
     if (dataRes.status == 201) {
       setIsOpen(false);
       router.refresh();
-    } else {
+      form.reset();
       setLoading(false);
+    } else {
       console.log(dataRes);
       console.log("Error");
+      setLoading(false);
     }
   }
 
@@ -95,7 +97,7 @@ export function AddDelegateForm({ setIsOpen }: Props) {
             <FormItem className="col-span-2 flex flex-col space-y-2.5">
               <FormLabel>Nombre completo <span className="text-red-500">*</span></FormLabel>
               <FormControl>
-                <Input placeholder="Cliente" {...field} autoComplete="off" />
+                <Input placeholder="Delegado" {...field} autoComplete="off" />
               </FormControl>
               <FormMessage className="text-xs text-red-400" />
             </FormItem>
@@ -154,7 +156,7 @@ export function AddDelegateForm({ setIsOpen }: Props) {
           )}
         />
         <div className="col-span-2 flex space-x-2 justify-end">
-          <button type="button" onClick={onClose} className="text-red-600 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 font-semibold rounded-lg text-base px-5 py-2 text-center flex justify-center active:scale-95 transition-all duration-75 ease-out">Cancel</button>
+          <button type="button" onClick={onClose} className="text-red-600 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 font-semibold rounded-lg text-base px-5 py-2 text-center flex justify-center active:scale-95 transition-all duration-75 ease-out">Cancelar</button>
           <button type="submit" className="text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-semibold rounded-lg text-base px-5 py-2 text-center flex justify-center active:scale-95 transition-all duration-75 ease-out disabled:opacity-75 disabled:cursor-not-allowed disabled:active:scale-100" disabled={loading}>
             {
               loading ? (

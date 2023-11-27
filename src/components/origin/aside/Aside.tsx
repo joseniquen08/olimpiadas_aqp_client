@@ -27,15 +27,15 @@ export function Aside({ role }: Props) {
   }
 
   return (
-    <aside className="[grid-area:aside] p-2">
-      <div className="border-emerald-600/30 border-2 h-full rounded-lg flex flex-col space-y-6 px-4 py-6 text-emerald-900">
-        <div>
+    <aside className="[grid-area:aside]">
+      <div className="border-emerald-600/50 border-r h-full flex flex-col space-y-6 py-6 text-emerald-900">
+        <div className="px-4">
           <Badge variant="outline-success">
             {role == "ADMIN" ? "admin" : (role == "CLIENTE" ? "cliente" : "delegado")}
           </Badge>
           <h1 className="text-2xl font-bold">Olimpiadas AQP</h1>
         </div>
-        <ul className="flex-1 flex flex-col gap-2">
+        <ul className="flex-1 flex flex-col border-t border-emerald-600/50">
           <li>
             <ButtonAside
               className="w-full"
@@ -65,7 +65,7 @@ export function Aside({ role }: Props) {
                   Deportes
                 </ButtonAside>
               </li>
-              <li>
+              {/* <li>
                 <ButtonAside
                   className="w-full"
                   isPathname={pathname === "/dashboard/categories"}
@@ -73,7 +73,7 @@ export function Aside({ role }: Props) {
                 >
                   Categorías
                 </ButtonAside>
-              </li>
+              </li> */}
               <li>
                 <ButtonAside
                   className="w-full"
@@ -121,7 +121,7 @@ export function Aside({ role }: Props) {
             </ButtonAside>
           </li>
         </ul>
-        <Button className="w-full" action={() => logout()}>
+        <Button className="mx-4" action={() => logout()}>
           <span>Cerrar sesión</span>
           <LogoutIcon />
         </Button>
