@@ -6,15 +6,23 @@ import { EditDelegateModal } from "@/components/origin/users/EditDelegateModal";
 import { DeleteUserModal } from "@/components/origin/users/DeleteUserModal";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { cookies } from 'next/headers';
 
 async function getUsers() {
+  const token = cookies().get('token');
+
   try {
     const response = await fetch(`${process.env.SERVER_URI}/api/user/all`, {
+      headers: {
+        'Authorization': `Bearer ${token?.value}`,
+      },
       method: 'GET',
       cache: 'no-store',
     });
 
-    return response.json();
+    const data = await response.json();
+
+    return data.status == "OK" ? data.data : null;
   } catch (error) {
     console.log("Error");
   }
@@ -55,7 +63,7 @@ export default async function Users() {
           </thead>
           <tbody>
             {users ? (
-              users?.map((user: any) => (
+              users.map((user: any) => (
                 <tr key={user.userId} className="bg-white border-b font-medium">
                   <td className="px-6 py-3.5">{user.fullName}</td>
                   <td className="px-6 py-3.5">{user.email}</td>

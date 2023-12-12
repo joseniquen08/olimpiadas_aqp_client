@@ -20,15 +20,19 @@ interface Props {
   event_id: number;
   sports: any;
   sportsTotal: any;
+  delegatesTotal: any;
 }
 
 const FormSchema = z.object({
   sport_id: z.number({
-    required_error: "El nombre del deporte es obligatorio"
+    required_error: "El nombre del deporte es obligatorio",
+  }),
+  delegate_id: z.number({
+    required_error: "El nombre del delegado es obligatorio",
   }),
 });
 
-export function AssignSportModal({ event_id, sports, sportsTotal }: Props) {
+export function AssignSportModal({ event_id, sports, sportsTotal, delegatesTotal }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -46,6 +50,7 @@ export function AssignSportModal({ event_id, sports, sportsTotal }: Props) {
       body: JSON.stringify({
         eventId: event_id,
         sportId: data.sport_id,
+        delegateId: data.delegate_id,
       }),
     });
 
@@ -171,6 +176,62 @@ export function AssignSportModal({ event_id, sports, sportsTotal }: Props) {
                                         </CommandItem>
                                       )
                                     })}
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="delegate_id"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col space-y-2.5">
+                            <FormLabel>Delegado <span className="text-red-500">*</span></FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className={cn(
+                                      "w-full justify-between",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {
+                                      field.value ? delegatesTotal.find((delegate: any) => delegate.delegateId === field.value)?.fullName : "Seleccionar delegado"
+                                    }
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-[300px] p-0" align="start">
+                                <Command>
+                                  <CommandInput placeholder="Buscar delegado..." />
+                                  <CommandEmpty className="py-2 text-center text-sm">No hay resultados</CommandEmpty>
+                                  <CommandGroup>
+                                    {delegatesTotal.map((delegate: any) => (
+                                      <CommandItem
+                                        value={delegate.fullName}
+                                        key={delegate.delegateId}
+                                        onSelect={() => {
+                                          form.setValue("delegate_id", delegate.delegateId)
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            delegate.delegateId === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                        {delegate.fullName}
+                                      </CommandItem>
+                                    ))}
                                   </CommandGroup>
                                 </Command>
                               </PopoverContent>

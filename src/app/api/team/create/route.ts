@@ -1,15 +1,16 @@
 export async function POST(request: Request) {
-  const { eventId, sportId, delegateId } = await request.json();
+  const { name, nickname, imageUrl, categoryId } = await request.json();
 
-  const res = await fetch(`${process.env.SERVER_URI}/api/event/assign/sport`, {
+  const res = await fetch(`${process.env.SERVER_URI}/api/team/create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      eventId,
-      sportId,
-      delegateId,
+      name,
+      nickname,
+      imageUrl,
+      categoryId,
     }),
   });
 

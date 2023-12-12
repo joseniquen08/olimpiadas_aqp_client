@@ -5,10 +5,11 @@ import { usePathname, useRouter } from "next/navigation"
 interface Props {
   event_name: string;
   sport_name: string;
+  category_name: string;
   role_name: string;
 }
 
-export function Breadcrumb({ event_name, sport_name, role_name }: Props) {
+export function Breadcrumb({ event_name, sport_name, category_name, role_name }: Props) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -35,7 +36,17 @@ export function Breadcrumb({ event_name, sport_name, role_name }: Props) {
             <svg className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
             </svg>
-            <span className="ms-0.5 text-gray-500">{sport_name}</span>
+            <button type="button" onClick={() => router.push(`${pathname.split("/category")[0]}/categories`)} className="inline-flex items-center text-gray-700 hover:text-emerald-900 ms-0.5">
+              {sport_name}
+            </button>
+          </div>
+        </li>
+        <li>
+          <div className="flex items-center">
+            <svg className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span className="ms-0.5 text-gray-500">{category_name}</span>
           </div>
         </li>
         <li aria-current="page">
@@ -43,7 +54,7 @@ export function Breadcrumb({ event_name, sport_name, role_name }: Props) {
             <svg className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
               <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
             </svg>
-            <span className="ms-0.5 text-gray-500">Categorías</span>
+            <span className="ms-0.5 text-gray-500">Equipos</span>
           </div>
         </li>
       </ol>

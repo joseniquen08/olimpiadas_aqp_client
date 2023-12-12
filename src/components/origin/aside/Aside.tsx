@@ -85,8 +85,17 @@ export function Aside({ role }: Props) {
               </li>
             </>
           )}
-          {role == "CLIENTE" && (
+          {(role == "CLIENTE" || role == "DELEGADO") && (
             <>
+              <li>
+                <ButtonAside
+                  className="w-full"
+                  isPathname={pathname === "/dashboard/events"}
+                  action={() => router.push("/dashboard/events")}
+                >
+                  Eventos
+                </ButtonAside>
+              </li>
               <li>
                 <ButtonAside
                   className="w-full"

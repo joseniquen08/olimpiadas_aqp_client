@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const data = await res.json();
 
   if (data.status == 200) {
-    cookies().set('token', data.token.split(' ')[1]);
+    cookies().set('token', data.token);
     cookies().set('user', JSON.stringify(data.user));
   }
 

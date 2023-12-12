@@ -2,22 +2,21 @@ import { Button } from "@/components/origin/shared/Button";
 import { FilterIcon } from "@/components/origin/icons/FilterIcon";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { Breadcrumb } from "@/components/origin/events/sports/categories/Breadcrumb";
-import { AddCategoryModal } from "@/components/origin/events/sports/categories/AddCategoryModal";
-import { DeleteCategoryModal } from "@/components/origin/events/sports/categories/DeleteCategoryModal";
-import { EditCategoryModal } from "@/components/origin/events/sports/categories/EditCategoryModal";
+import { Breadcrumb } from "@/components/origin/events/sports/categories/teams/Breadcrumb";
 import { cookies } from "next/headers";
-import { TeamsButton } from "@/components/origin/events/sports/categories/TeamsButton";
+import { AddTeamModal } from "@/components/origin/events/sports/categories/teams/AddTeamModal";
+import Image from "next/image";
+import { PlayersButton } from "@/components/origin/events/sports/categories/teams/PlayersButton";
 
 interface Props {
   params: {
-    sport_event_id: number
+    category_id: number
   }
 }
 
-async function getCategoriesBySportEventId(sport_event_id: number) {
+async function getTeamsByCategoryId(category_id: number) {
   try {
-    const response = await fetch(`${process.env.SERVER_URI}/api/category/all/sport_event/${sport_event_id}`, {
+    const response = await fetch(`${process.env.SERVER_URI}/api/team/all/category/${category_id}`, {
       method: 'GET',
       cache: 'no-store',
     });
@@ -28,24 +27,25 @@ async function getCategoriesBySportEventId(sport_event_id: number) {
   }
 }
 
-export default async function Categories({ params }: Props) {
+export default async function Teams({ params }: Props) {
   const user = JSON.parse(cookies().get("user")?.value!);
   const role_name = user.roleName;
 
-  const categories = await getCategoriesBySportEventId(params.sport_event_id);
+  const teams = await getTeamsByCategoryId(params.category_id);
 
   return (
     <div className="py-3 flex flex-col space-y-5">
       <header className="border-b border-emerald-600/50">
         <Breadcrumb
-          event_name={categories?.eventName}
-          sport_name={categories?.sportName}
+          event_name={teams?.eventName}
+          sport_name={teams?.sportName}
+          category_name={teams?.categoryName}
           role_name={role_name}
         />
       </header>
       <div className="flex justify-between text-emerald-900 text-sm">
         {role_name == "DELEGADO" ? (
-          <AddCategoryModal sport_event_id={params.sport_event_id} />
+          <AddTeamModal category_id={params.category_id} />
         ) : (<span></span>)}
         <Button className="gap-1.5 items-center">
           <FilterIcon />
@@ -57,10 +57,10 @@ export default async function Categories({ params }: Props) {
           <thead className="text-xs text-emerald-900 bg-emerald-50">
             <tr>
               <th scope="col" className="px-6 py-3 rounded-l-xl">
-                Nombre
+                Apodo
               </th>
               <th scope="col" className="px-6 py-3">
-                Descripción
+                Nombre
               </th>
               <th scope="col" className="px-6 py-3 rounded-r-xl">
                 Acciones
@@ -68,30 +68,26 @@ export default async function Categories({ params }: Props) {
             </tr>
           </thead>
           <tbody>
-            {categories ? (
-              categories.categories.length > 0 ? (
-                categories.categories.map((category: any) => (
-                  <tr key={category.categoryId} className="bg-white border-b font-medium">
-                    <td className="px-6 py-4">{category.name}</td>
-                    <td className="px-6 py-4">{category.description}</td>
+            {teams ? (
+              teams.teams.length > 0 ? (
+                teams.teams.map((team: any) => (
+                  <tr key={team.teamId} className="bg-white border-b font-medium">
+                    <td className="px-6 py-4 flex space-x-3 items-center">
+                      <div className="h-9 w-9 overflow-hidden relative border rounded-lg object-cover">
+                        <Image
+                          src={team.imageUrl}
+                          alt={team.name}
+                          fill={true}
+                        />
+                      </div>
+                      <p>{team.nickname}</p>
+                    </td>
+                    <td className="px-6 py-4">{team.name}</td>
                     <td className="px-6 py-4 flex space-x-2">
-                      <TeamsButton
-                        category_id={category.categoryId}
+                      <PlayersButton
+                        team_id={team.teamId}
                         role_name={role_name}
                       />
-                      {role_name == "DELEGADO" && (
-                        <>
-                          <EditCategoryModal
-                            category_id={category.categoryId}
-                            name={category.name}
-                            description={category.description}
-                          />
-                          <DeleteCategoryModal
-                            category_id={category.categoryId}
-                            name={category.name}
-                          />
-                        </>
-                      )}
                     </td>
                   </tr>
                 ))

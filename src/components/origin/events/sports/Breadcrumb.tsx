@@ -1,20 +1,21 @@
 'use client';
 
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 
 interface Props {
   event_name: string;
+  role_name: string;
 }
 
-export function Breadcrumb({ event_name }: Props) {
+export function Breadcrumb({ event_name, role_name }: Props) {
   const router = useRouter();
 
   return (
-    <nav className="flex mb-1.5 text-lg font-semibold" aria-label="Breadcrumb">
+    <nav className="flex mb-1.5 text-base font-semibold" aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-0.5 rtl:space-x-reverse">
         <li className="inline-flex items-center">
           <button type="button" onClick={() => router.push("/dashboard/events")} className="inline-flex items-center text-gray-700 hover:text-emerald-900">
-            Eventos
+            {role_name == "ADMIN" ? "Eventos" : "Mis eventos"}
           </button>
         </li>
         <li>

@@ -11,7 +11,7 @@ export default function DashboardLayout({
   return (
     <main id="main" className="grid min-h-screen">
       <Aside role={JSON.parse(user?.value!).roleName} />
-      <section className="[grid-area:content] px-4 py-2">
+      <section className="[grid-area:content] px-4 py-2 overflow-y-auto h-screen">
         {children}
       </section>
     </main>

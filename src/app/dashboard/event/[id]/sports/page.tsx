@@ -6,6 +6,7 @@ import { Breadcrumb } from "@/components/origin/events/sports/Breadcrumb";
 import { AssignSportModal } from "@/components/origin/events/sports/AssignSportModal";
 import { UnassignSportModal } from "@/components/origin/events/sports/UnassignSportModal";
 import { CategoriesButton } from "@/components/origin/events/sports/CategoriesButton";
+import { cookies } from "next/headers";
 
 interface Props {
   params: {
@@ -39,17 +40,64 @@ async function getSportsByEventId(event_id: number) {
   }
 }
 
+async function getSportsByEventIdAndDelegateId(event_id: number, delegate_id: number) {
+  try {
+    const response = await fetch(`${process.env.SERVER_URI}/api/sport/all/event_delegate/${event_id}/${delegate_id}`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    return response.json();
+  } catch (error) {
+    console.log("Error");
+  }
+}
+
+async function getDelegates() {
+  try {
+    const response = await fetch(`${process.env.SERVER_URI}/api/user/delegate/all`, {
+      method: 'GET',
+      cache: 'no-store',
+    });
+
+    return response.json();
+  } catch (error) {
+    console.log("Error");
+  }
+}
+
 export default async function Sports({ params }: Props) {
-  const sportsTotal = await getSports();
-  const sports = await getSportsByEventId(params.id);
+  const user = JSON.parse(cookies().get("user")?.value!);
+  const role_name = user.roleName;
+
+  let sportsTotal: any;
+  let sports: any;
+  let delegatesTotal: any[] = [];
+
+  if (role_name == "ADMIN") {
+    sports = await getSportsByEventId(params.id);
+  } else if (role_name == "CLIENTE") {
+    sportsTotal = await getSports();
+    sports = await getSportsByEventId(params.id);
+    delegatesTotal = await getDelegates();
+  } else if (role_name == "DELEGADO") {
+    sports = await getSportsByEventIdAndDelegateId(params.id, user.userRoleId);
+  }
 
   return (
     <div className="py-3 flex flex-col space-y-5">
       <header className="border-b border-emerald-600/50">
-        <Breadcrumb event_name={sports.eventName} />
+        <Breadcrumb event_name={sports?.eventName} role_name={role_name} />
       </header>
       <div className="flex justify-between text-emerald-900 text-sm">
-        <AssignSportModal event_id={params.id} sports={sports} sportsTotal={sportsTotal} />
+        {role_name == "CLIENTE" ? (
+          <AssignSportModal
+            event_id={params.id}
+            sports={sports}
+            sportsTotal={sportsTotal}
+            delegatesTotal={delegatesTotal}
+          />
+        ) : (<span></span>)}
         <Button className="gap-1.5 items-center">
           <FilterIcon />
           <span>Filtros</span>
@@ -66,6 +114,9 @@ export default async function Sports({ params }: Props) {
                 Descripción
               </th>
               <th scope="col" className="px-6 py-3">
+                Delegado
+              </th>
+              <th scope="col" className="px-6 py-3">
                 Total de categorías
               </th>
               <th scope="col" className="px-6 py-3 rounded-r-xl">
@@ -80,13 +131,19 @@ export default async function Sports({ params }: Props) {
                   <tr key={sport.sportId} className="bg-white border-b font-medium">
                     <td className="px-6 py-4">{sport.name}</td>
                     <td className="px-6 py-4">{sport.description}</td>
+                    <td className="px-6 py-4">{sport.delegate}</td>
                     <td className="px-6 py-4">{sport.totalCategories}</td>
                     <td className="px-6 py-4 flex space-x-2">
-                      <CategoriesButton sport_event_id={sport.sportEventId} />
-                      <UnassignSportModal
+                      <CategoriesButton
                         sport_event_id={sport.sportEventId}
-                        name={sport.name}
+                        role_name={role_name}
                       />
+                      {(role_name == "ADMIN" || role_name == "CLIENTE") && (
+                        <UnassignSportModal
+                          sport_event_id={sport.sportEventId}
+                          name={sport.name}
+                        />
+                      )}
                     </td>
                   </tr>
                 ))

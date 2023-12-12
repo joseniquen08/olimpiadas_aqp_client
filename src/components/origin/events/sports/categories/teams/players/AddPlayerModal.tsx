@@ -1,42 +1,50 @@
 'use client';
 
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
-import { Button as ButtonOrigin } from "@/components/origin/shared/Button";
-import { PlusIcon } from "@/components/origin/icons/PlusIcon";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import * as z from 'zod';
+import { Button as ButtonOrigin } from '@/components/origin/shared/Button';
+import { PlusIcon } from '@/components/origin/icons/PlusIcon';
+import { Dialog, Transition } from "@headlessui/react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LoadingIcon } from '@/components/origin/shared/LoadingIcon';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import { LoadingIcon } from "../shared/LoadingIcon";
 import { es } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 
 interface Props {
-  clients: any[];
+  team_id: number;
 }
 
 const FormSchema = z.object({
   name: z.string({
-    required_error: "El nombre del evento es obligatorio"
+    required_error: "El nombre es obligatorio"
+  }).min(1, { message: "El nombre es obligatorio" }),
+  birthdate: z.date({
+    required_error: "La fecha de cumpleaños es obligatoria",
   }),
-  start_date: z.date({
-    required_error: "La fecha de inicio es obligatoria",
-  }),
-  client_id: z.number({
-    required_error: "El nombre del cliente es obligatorio"
+  gender: z.string({
+    required_error: "El género es obligatorio"
+  }).min(1, { message: "El nombre es obligatorio" }),
+  height: z.string({
+    required_error: "La altura es obligatoria"
+  }).min(1, { message: "El nombre es obligatorio" }),
+  weight: z.string({
+    required_error: "La altura es obligatoria"
+  }).min(1, { message: "El nombre es obligatorio" }),
+  jersey_number: z.number({
+    required_error: "El número de camiseta es obligatorio"
   }),
 });
 
-export function AddEventModal({ clients }: Props) {
+export function AddPlayerModal({ team_id }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -49,13 +57,16 @@ export function AddEventModal({ clients }: Props) {
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     setLoading(true);
 
-    const response = await fetch(`/api/event/create`, {
+    const response = await fetch(`/api/player/create`, {
       method: 'POST',
       body: JSON.stringify({
         name: data.name,
-        startDate: data.start_date,
-        status: true,
-        clientId: data.client_id,
+        birthdate: data.birthdate,
+        gender: data.gender,
+        height: parseFloat(data.height),
+        weight: parseFloat(data.weight),
+        jerseyNumber: data.jersey_number,
+        teamId: team_id,
       }),
     });
 
@@ -67,6 +78,7 @@ export function AddEventModal({ clients }: Props) {
       form.reset();
       setLoading(false);
     } else {
+      console.log(dataRes);
       console.log("Error");
       setLoading(false);
     }
@@ -108,7 +120,7 @@ export function AddEventModal({ clients }: Props) {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                  <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Agregar un nuevo evento</Dialog.Title>
+                  <Dialog.Title as="h3" className="text-2xl font-bold leading-6 text-emerald-900">Agregar un nuevo jugador</Dialog.Title>
                   <Dialog.Description className="text-sm mt-1">Completa los datos requeridos</Dialog.Description>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="pt-6 grid grid-cols-2 gap-4 md:gap-6">
@@ -116,10 +128,10 @@ export function AddEventModal({ clients }: Props) {
                         control={form.control}
                         name="name"
                         render={({ field }) => (
-                          <FormItem className="col-span-2 flex flex-col space-y-2.5">
-                            <FormLabel>Nombre del evento <span className="text-red-500">*</span></FormLabel>
+                          <FormItem className="col-span-1 flex flex-col space-y-2.5">
+                            <FormLabel>Nombre del jugador <span className="text-red-500">*</span></FormLabel>
                             <FormControl>
-                              <Input placeholder="Evento" {...field} autoComplete="off" />
+                              <Input placeholder="Jugador" {...field} autoComplete="off" />
                             </FormControl>
                             <FormMessage className="text-xs text-red-400" />
                           </FormItem>
@@ -127,10 +139,10 @@ export function AddEventModal({ clients }: Props) {
                       />
                       <FormField
                         control={form.control}
-                        name="start_date"
+                        name="birthdate"
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
-                            <FormLabel>Fecha de inicio <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel>Fecha de cumpleaños <span className="text-red-500">*</span></FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
@@ -153,7 +165,7 @@ export function AddEventModal({ clients }: Props) {
                                   mode="single"
                                   selected={field.value}
                                   onSelect={field.onChange}
-                                  disabled={(date) => date < new Date()}
+                                  disabled={(date) => date >= new Date()}
                                 />
                               </PopoverContent>
                             </Popover>
@@ -163,56 +175,59 @@ export function AddEventModal({ clients }: Props) {
                       />
                       <FormField
                         control={form.control}
-                        name="client_id"
+                        name="height"
                         render={({ field }) => (
-                          <FormItem className="flex flex-col space-y-2.5">
-                            <FormLabel>Cliente <span className="text-red-500">*</span></FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      "w-full justify-between",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {
-                                      field.value ? clients.find((client: any) => client.clientId === field.value)?.fullName : "Seleccionar cliente"
-                                    }
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-[300px] p-0" align="start">
-                                <Command>
-                                  <CommandInput placeholder="Buscar cliente..." />
-                                  <CommandEmpty className="py-2 text-center text-sm">No hay resultados</CommandEmpty>
-                                  <CommandGroup>
-                                    {clients.map((client: any) => (
-                                      <CommandItem
-                                        value={client.fullName}
-                                        key={client.clientId}
-                                        onSelect={() => {
-                                          form.setValue("client_id", client.clientId)
-                                        }}
-                                      >
-                                        <Check
-                                          className={cn(
-                                            "mr-2 h-4 w-4",
-                                            client.clientId === field.value
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          )}
-                                        />
-                                        {client.fullName}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
+                          <FormItem className="col-span-1 flex flex-col space-y-2.5">
+                            <FormLabel>Altura(m) <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input placeholder="Altura" {...field} autoComplete="off" />
+                            </FormControl>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="weight"
+                        render={({ field }) => (
+                          <FormItem className="col-span-1 flex flex-col space-y-2.5">
+                            <FormLabel>Peso(kg) <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input placeholder="Peso" {...field} autoComplete="off" />
+                            </FormControl>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="jersey_number"
+                        render={({ field }) => (
+                          <FormItem className="col-span-1 flex flex-col space-y-2.5">
+                            <FormLabel>N° de camiseta <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Camiseta"
+                                type="number"
+                                min={0}
+                                {...field}
+                                autoComplete="off"
+                                onChange={event => field.onChange(+event.target.value)}
+                              />
+                            </FormControl>
+                            <FormMessage className="text-xs text-red-400" />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="gender"
+                        render={({ field }) => (
+                          <FormItem className="col-span-1 flex flex-col space-y-2.5">
+                            <FormLabel>Género <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input placeholder="Género" {...field} autoComplete="off" />
+                            </FormControl>
                             <FormMessage className="text-xs text-red-400" />
                           </FormItem>
                         )}
